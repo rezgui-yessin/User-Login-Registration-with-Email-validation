@@ -9,6 +9,7 @@ import {SettingsComponent} from "./modules/dashboard/settings/settings.component
 import {UsersComponent} from "./modules/dashboard/users/users.component";
 import {ProductsComponent} from "./modules/dashboard/products/products.component";
 import {OrdersComponent} from "./modules/dashboard/orders/orders.component";
+import {authGuard} from "./guards/auth.guard";
 
 const routes: Routes = [
   {
@@ -26,6 +27,7 @@ const routes: Routes = [
   {
     path: 'dashboard',
     component: MainDashboardComponent,
+    canActivate: [authGuard], // Protect this route with the authGuard
     children: [
       { path: '', component: DashboardComponent },
       { path: 'users', component: UsersComponent },

@@ -5,22 +5,22 @@ export const navbarData = [
     label: 'Dashboard'
   },
   {
-    routeLink: '/users',
+    routeLink: '/dashboard/users',
     icon: 'fa-solid fa-users',
     label: 'Users'
   },
   {
-    routeLink: '/products',
+    routeLink: '/dashboard/products',
     icon: 'fa-solid fa-box-open',
     label: 'Products'
   },
   {
-    routeLink: '/orders',
+    routeLink: '/dashboard/orders',
     icon: 'fa-solid fa-file-invoice-dollar',
     label: 'Orders'
   },
   {
-    routeLink: '/settings',
+    routeLink: '/dashboard/settings',
     icon: 'fa-solid fa-cog',
     label: 'Settings'
   }

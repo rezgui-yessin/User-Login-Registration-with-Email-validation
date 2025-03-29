@@ -18,6 +18,8 @@ import { MainDashboardComponent } from './modules/dashboard/main-dashboard/main-
 import { UsersComponent } from './modules/dashboard/users/users.component';
 import { ProductsComponent } from './modules/dashboard/products/products.component';
 import { OrdersComponent } from './modules/dashboard/orders/orders.component';
+import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
+import { ProfileComponent } from './modules/dashboard/profile/profile.component';
 
 @NgModule({
   declarations: [
@@ -33,14 +35,16 @@ import { OrdersComponent } from './modules/dashboard/orders/orders.component';
     MainDashboardComponent,
     UsersComponent,
     ProductsComponent,
-    OrdersComponent
+    OrdersComponent,
+    ProfileComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
     FormsModule,
-    CodeInputModule
+    CodeInputModule,
+    BrowserAnimationsModule
   ],
   providers: [
     HttpClient

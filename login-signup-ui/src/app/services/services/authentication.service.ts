@@ -18,10 +18,11 @@ import { login } from '../fn/authentication/login';
 import { Login$Params } from '../fn/authentication/login';
 import { register } from '../fn/authentication/register';
 import { Register$Params } from '../fn/authentication/register';
+import{TokenService} from "../token/token.service"
 
 @Injectable({ providedIn: 'root' })
 export class AuthenticationService extends BaseService {
-  constructor(config: ApiConfiguration, http: HttpClient) {
+  constructor(config: ApiConfiguration, http: HttpClient, private tokenService: TokenService) {
     super(config, http);
   }
 
@@ -104,4 +105,9 @@ export class AuthenticationService extends BaseService {
     );
   }
 
+
+  isAuthenticated(): boolean {
+    const token = this.tokenService.token;
+    return !!token;
+  }
 }
