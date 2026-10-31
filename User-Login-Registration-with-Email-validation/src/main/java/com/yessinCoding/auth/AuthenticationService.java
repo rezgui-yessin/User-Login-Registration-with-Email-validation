@@ -13,13 +13,13 @@ import com.yessinCoding.repository.TokenRepository;
 import com.yessinCoding.repository.UserRepository;
 import com.yessinCoding.security.JwtService;
 import jakarta.mail.MessagingException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.LockedException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -34,6 +34,9 @@ import java.util.UUID;
 @Slf4j
 @RequiredArgsConstructor
 public class AuthenticationService {
+
+    private static final int MAX_LOGIN_ATTEMPTS = 5;
+    private static final int LOCK_DURATION_MINUTES = 15;
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -52,6 +55,10 @@ public class AuthenticationService {
     private String resetPasswordUrl;
 
     public void register(RegistrationRequest request) throws MessagingException {
+        userRepository.findByEmailIgnoreCase(request.getEmail()).ifPresent(existing -> {
+            throw new IllegalStateException("User with this email already exists");
+        });
+
         var userRole = roleRepository.findByName("USER")
                 .orElseThrow(() -> new IllegalStateException("ROLE USER was not initiated"));
 
@@ -106,30 +113,52 @@ public class AuthenticationService {
         }
 
         if (user.isAccountLocked()) {
-            throw new LockedException("Your account is locked. Please reset your password or contact support.");
+            if (user.getLockTime() != null && user.getLockTime().plusMinutes(LOCK_DURATION_MINUTES).isAfter(LocalDateTime.now())) {
+                throw new LockedException("Your account is temporarily locked due to too many failed login attempts.");
+            }
+            user.setAccountLocked(false);
+            user.setFailedLoginAttempts(0);
+            user.setLockTime(null);
+            userRepository.save(user);
         }
 
-        var auth = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-        );
+        try {
+            var auth = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+            );
 
-        var authenticatedUser = (User) auth.getPrincipal();
-        authenticatedUser.setFailedLoginAttempts(0);
-        authenticatedUser.setLockTime(null);
-        userRepository.save(authenticatedUser);
+            var authenticatedUser = (User) auth.getPrincipal();
+            authenticatedUser.setFailedLoginAttempts(0);
+            authenticatedUser.setLockTime(null);
+            authenticatedUser.setAccountLocked(false);
+            userRepository.save(authenticatedUser);
 
-        var claims = new HashMap<String, Object>();
-        claims.put("fullName", authenticatedUser.fullName());
-        var jwtToken = jwtService.generateToken(claims, authenticatedUser);
-        var refreshToken = generateAndSaveRefreshToken(authenticatedUser);
+            var claims = new HashMap<String, Object>();
+            claims.put("fullName", authenticatedUser.fullName());
+            var jwtToken = jwtService.generateToken(claims, authenticatedUser);
+            var refreshToken = generateAndSaveRefreshToken(authenticatedUser);
 
-        return AuthenticationResponse.builder()
-                .token(jwtToken)
-                .accessToken(jwtToken)
-                .refreshToken(refreshToken)
-                .tokenType("Bearer")
-                .expiresIn(jwtService.getJwtExpirationInMs())
-                .build();
+            return AuthenticationResponse.builder()
+                    .token(jwtToken)
+                    .accessToken(jwtToken)
+                    .refreshToken(refreshToken)
+                    .tokenType("Bearer")
+                    .expiresIn(jwtService.getJwtExpirationInMs())
+                    .build();
+        } catch (BadCredentialsException e) {
+            int failedAttempts = user.getFailedLoginAttempts() + 1;
+            user.setFailedLoginAttempts(failedAttempts);
+
+            if (failedAttempts >= MAX_LOGIN_ATTEMPTS) {
+                user.setAccountLocked(true);
+                user.setLockTime(LocalDateTime.now());
+                userRepository.save(user);
+                throw new LockedException("Too many failed login attempts. Your account has been temporarily locked for 15 minutes.");
+            }
+
+            userRepository.save(user);
+            throw new BadCredentialsException("Invalid email or password");
+        }
     }
 
     public AuthenticationResponse refreshToken(String refreshTokenRequest) {
