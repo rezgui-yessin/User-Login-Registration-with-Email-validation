@@ -20,6 +20,9 @@ import { OrdersComponent } from './modules/dashboard/orders/orders.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ProfileComponent } from './modules/dashboard/profile/profile.component';
 import { AuthInterceptor } from './auth.interceptor';
+import { MfaSetupComponent } from './pages/mfa-setup/mfa-setup.component';
+import { SessionManagementComponent } from './modules/dashboard/sessions/session-management.component';
+import { AdminPanelComponent } from './modules/dashboard/admin/admin-panel.component';
 
 @NgModule({
   declarations: [
@@ -27,6 +30,7 @@ import { AuthInterceptor } from './auth.interceptor';
     LoginComponent,
     RegisterComponent,
     ActivateAccountComponent,
+    MfaSetupComponent,
     BodyComponent,
     SidenavComponent,
     DashboardComponent,
@@ -36,7 +40,9 @@ import { AuthInterceptor } from './auth.interceptor';
     UsersComponent,
     ProductsComponent,
     OrdersComponent,
-    ProfileComponent
+    ProfileComponent,
+    SessionManagementComponent,
+    AdminPanelComponent
   ],
   imports: [
     BrowserModule,

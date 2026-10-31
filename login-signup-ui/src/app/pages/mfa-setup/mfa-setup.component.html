@@ -1,0 +1,28 @@
+<section class="mfa-setup">
+  <div class="card">
+    <h2>Two-Factor Authentication</h2>
+
+    <div class="field">
+      <label>Email</label>
+      <input [(ngModel)]="email" type="email" placeholder="you@example.com" />
+    </div>
+
+    <button type="button" class="primary" (click)="setupMfa()">Generate QR Code</button>
+
+    <div *ngIf="otpauthUrl" class="qr-block">
+      <p>Scan this QR code in your authenticator app:</p>
+      <img [src]="'https://quickchart.io/qr?text=' + encodeURIComponent(otpauthUrl)" alt="MFA QR code" />
+      <p class="secret">Secret: <strong>{{ secret }}</strong></p>
+    </div>
+
+    <div class="field" *ngIf="otpauthUrl">
+      <label>Verification code</label>
+      <input [(ngModel)]="verificationCode" type="text" maxlength="6" placeholder="123456" />
+    </div>
+
+    <button *ngIf="otpauthUrl" type="button" class="success" (click)="verifyMfa()">Verify and enable 2FA</button>
+
+    <p class="message" *ngIf="statusMessage">{{ statusMessage }}</p>
+    <p class="status" *ngIf="enabled">2FA enabled for this account.</p>
+  </div>
+</section>

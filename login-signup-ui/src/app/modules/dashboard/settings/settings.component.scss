@@ -1,0 +1,36 @@
+.settings-panel {
+  padding: 24px;
+}
+
+h2 {
+  margin-bottom: 18px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+button {
+  border: none;
+  border-radius: 10px;
+  padding: 12px 16px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.primary {
+  background: #1976d2;
+  color: white;
+}
+
+.secondary {
+  background: #e3f2fd;
+  color: #0d47a1;
+}
+
+.danger {
+  background: #d32f2f;
+  color: white;
+}

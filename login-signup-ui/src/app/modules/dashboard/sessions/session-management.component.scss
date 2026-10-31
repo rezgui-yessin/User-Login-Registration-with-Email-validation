@@ -1,0 +1,35 @@
+.session-management {
+  padding: 24px;
+}
+
+h2 {
+  margin-bottom: 16px;
+}
+
+.session-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.06);
+  max-width: 520px;
+}
+
+button {
+  border: none;
+  border-radius: 10px;
+  padding: 12px 16px;
+  cursor: pointer;
+  font-weight: 600;
+  margin-top: 12px;
+}
+
+.danger {
+  background: #d32f2f;
+  color: white;
+}
+
+.message {
+  margin-top: 16px;
+  color: #2e7d32;
+  font-weight: 600;
+}

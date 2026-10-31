@@ -1,1 +1,9 @@
-<p>settings works!</p>
+<section class="settings-panel">
+  <h2>Account Settings</h2>
+
+  <div class="actions">
+    <button class="primary" type="button" (click)="goToMfaSetup()">Set up 2FA</button>
+    <button class="secondary" type="button" (click)="goToSessionManagement()">Manage sessions</button>
+    <button class="danger" type="button" (click)="logout()">Logout</button>
+  </div>
+</section>

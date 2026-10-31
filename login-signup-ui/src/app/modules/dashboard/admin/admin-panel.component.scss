@@ -1,0 +1,30 @@
+.admin-panel {
+  padding: 24px;
+}
+
+h2 {
+  margin-bottom: 20px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.stat-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.06);
+}
+
+.label {
+  display: block;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.value {
+  font-size: 1.8rem;
+}

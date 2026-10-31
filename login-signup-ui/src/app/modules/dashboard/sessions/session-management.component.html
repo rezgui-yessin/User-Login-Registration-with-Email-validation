@@ -1,0 +1,11 @@
+<section class="session-management">
+  <h2>Session Management</h2>
+
+  <div class="session-card">
+    <p>Signed in as: <strong>{{ email }}</strong></p>
+    <p>Revoke all active sessions across devices and require a new login.</p>
+    <button type="button" class="danger" (click)="revokeAllSessions()">Revoke all sessions</button>
+  </div>
+
+  <p class="message" *ngIf="message">{{ message }}</p>
+</section>
