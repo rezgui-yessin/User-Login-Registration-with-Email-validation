@@ -1,5 +1,7 @@
 package com.yessinCoding.auth;
 
+import com.warrenstrange.googleauth.GoogleAuthenticator;
+import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
 import com.yessinCoding.email.EmailService;
 import com.yessinCoding.email.EmailTemplateName;
 import com.yessinCoding.entity.PasswordResetToken;
@@ -70,6 +72,7 @@ public class AuthenticationService {
                 .accountLocked(false)
                 .enabled(false)
                 .failedLoginAttempts(0)
+                .mfaEnabled(false)
                 .roles(List.of(userRole))
                 .build();
 
@@ -123,6 +126,15 @@ public class AuthenticationService {
         }
 
         try {
+            if (user.isMfaEnabled()) {
+                if (request.getMfaCode() == null || request.getMfaCode().isBlank()) {
+                    throw new IllegalStateException("MFA verification is required for this account.");
+                }
+                if (!verifyTotp(user.getMfaSecret(), request.getMfaCode())) {
+                    throw new BadCredentialsException("Invalid MFA code");
+                }
+            }
+
             var auth = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
             );
@@ -187,6 +199,53 @@ public class AuthenticationService {
 
     public void logout(String refreshToken) {
         refreshTokenRepository.deleteByToken(refreshToken);
+    }
+
+    public void revokeAllSessions(String email) {
+        var user = userRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+        refreshTokenRepository.deleteByUser(user);
+    }
+
+    public MfaSetupResponse setupMfa(String email) {
+        var user = userRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+
+        GoogleAuthenticator gAuth = new GoogleAuthenticator();
+        GoogleAuthenticatorKey key = gAuth.createCredentials();
+
+        user.setMfaSecret(key.getKey());
+        user.setMfaEnabled(false);
+        userRepository.save(user);
+
+        String otpauthUrl = String.format(
+                "otpauth://totp/%s?secret=%s&issuer=%s",
+                user.getEmail(),
+                key.getKey(),
+                "YessinAuth"
+        );
+
+        return MfaSetupResponse.builder()
+                .secret(key.getKey())
+                .otpauthUrl(otpauthUrl)
+                .enabled(false)
+                .build();
+    }
+
+    public void verifyMfa(String email, String code) {
+        var user = userRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+
+        if (user.getMfaSecret() == null || user.getMfaSecret().isBlank()) {
+            throw new IllegalStateException("MFA is not configured for this account.");
+        }
+
+        if (!verifyTotp(user.getMfaSecret(), code)) {
+            throw new BadCredentialsException("Invalid MFA code");
+        }
+
+        user.setMfaEnabled(true);
+        userRepository.save(user);
     }
 
     public void forgotPassword(String email) throws MessagingException {
@@ -282,5 +341,15 @@ public class AuthenticationService {
         }
 
         return codeBuilder.toString();
+    }
+
+    private boolean verifyTotp(String secret, String code) {
+        try {
+            GoogleAuthenticator gAuth = new GoogleAuthenticator();
+            int codeValue = Integer.parseInt(code.trim());
+            return gAuth.authorize(secret, codeValue);
+        } catch (Exception ex) {
+            return false;
+        }
     }
 }

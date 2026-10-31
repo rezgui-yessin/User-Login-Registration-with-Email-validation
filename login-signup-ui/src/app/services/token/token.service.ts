@@ -1,16 +1,33 @@
-import { Injectable } from '@angular/core';
+import { AuthenticationService } from '../services/services';
 
-@Injectable({
-  providedIn: 'root'
-})
 export class TokenService {
-
-  //1 set token
   set token(token: string) {
     localStorage.setItem('token', token);
   }
-  //2 get token
+
   get token(): string {
-    return localStorage.getItem('token') as string ;
+    return localStorage.getItem('token') as string;
+  }
+
+  set accessToken(token: string) {
+    localStorage.setItem('accessToken', token);
+  }
+
+  get accessToken(): string {
+    return localStorage.getItem('accessToken') as string;
+  }
+
+  set refreshToken(token: string) {
+    localStorage.setItem('refreshToken', token);
+  }
+
+  get refreshToken(): string {
+    return localStorage.getItem('refreshToken') as string;
+  }
+
+  clear() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
   }
 }

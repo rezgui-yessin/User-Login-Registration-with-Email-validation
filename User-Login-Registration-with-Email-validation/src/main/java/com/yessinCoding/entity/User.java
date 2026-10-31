@@ -60,6 +60,12 @@ public class User implements UserDetails, Principal {
 
     private String providerId;
 
+    @Column(length = 512)
+    private String mfaSecret;
+
+    @Column(nullable = false)
+    private boolean mfaEnabled;
+
     @CreatedDate
     @Column(updatable = false, nullable = false)
     private LocalDateTime createdAt;

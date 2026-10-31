@@ -1,14 +1,13 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import {HttpClient, HttpClientModule} from "@angular/common/http";
+import { HttpClient, HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { LoginComponent } from './pages/login/login.component';
-import {FormsModule} from "@angular/forms";
+import { FormsModule } from '@angular/forms';
 import { RegisterComponent } from './pages/register/register.component';
 import { ActivateAccountComponent } from './pages/activate-account/activate-account.component';
-import {CodeInputModule} from "angular-code-input";
+import { CodeInputModule } from 'angular-code-input';
 import { BodyComponent } from './modules/dashboard/body/body.component';
 import { SidenavComponent } from './modules/dashboard/sidenav/sidenav.component';
 import { DashboardComponent } from './modules/dashboard/dashboard/dashboard.component';
@@ -18,8 +17,9 @@ import { MainDashboardComponent } from './modules/dashboard/main-dashboard/main-
 import { UsersComponent } from './modules/dashboard/users/users.component';
 import { ProductsComponent } from './modules/dashboard/products/products.component';
 import { OrdersComponent } from './modules/dashboard/orders/orders.component';
-import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ProfileComponent } from './modules/dashboard/profile/profile.component';
+import { AuthInterceptor } from './auth.interceptor';
 
 @NgModule({
   declarations: [
@@ -47,7 +47,8 @@ import { ProfileComponent } from './modules/dashboard/profile/profile.component'
     BrowserAnimationsModule
   ],
   providers: [
-    HttpClient
+    HttpClient,
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
   ],
   bootstrap: [AppComponent]
 })

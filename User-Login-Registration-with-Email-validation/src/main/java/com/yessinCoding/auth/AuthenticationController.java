@@ -3,7 +3,6 @@ package com.yessinCoding.auth;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,24 +19,18 @@ public class AuthenticationController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public ResponseEntity<?> register(
-            @RequestBody @Valid RegistrationRequest request
-    ) throws MessagingException {
+    public ResponseEntity<?> register(@RequestBody @Valid RegistrationRequest request) throws MessagingException {
         service.register(request);
         return ResponseEntity.accepted().build();
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthenticationResponse> login(
-            @RequestBody @Valid LoginRequest request
-    ) {
+    public ResponseEntity<AuthenticationResponse> login(@RequestBody @Valid LoginRequest request) {
         return ResponseEntity.ok(service.login(request));
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<AuthenticationResponse> refresh(
-            @RequestBody @Valid RefreshTokenRequest request
-    ) {
+    public ResponseEntity<AuthenticationResponse> refresh(@RequestBody @Valid RefreshTokenRequest request) {
         return ResponseEntity.ok(service.refreshToken(request.getRefreshToken()));
     }
 
@@ -45,6 +38,23 @@ public class AuthenticationController {
     public ResponseEntity<Void> logout(@RequestBody @Valid RefreshTokenRequest request) {
         service.logout(request.getRefreshToken());
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/sessions/revoke-all")
+    public ResponseEntity<Void> revokeAllSessions(@RequestBody @Valid RevokeAllSessionsRequest request) {
+        service.revokeAllSessions(request.getEmail());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/mfa/setup")
+    public ResponseEntity<MfaSetupResponse> setupMfa(@RequestBody @Valid MfaSetupRequest request) {
+        return ResponseEntity.ok(service.setupMfa(request.getEmail()));
+    }
+
+    @PostMapping("/mfa/verify")
+    public ResponseEntity<Void> verifyMfa(@RequestBody @Valid MfaVerificationRequest request) {
+        service.verifyMfa(request.getEmail(), request.getCode());
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/forgot-password")
