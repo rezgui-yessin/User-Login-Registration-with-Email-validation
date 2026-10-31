@@ -1,44 +1,63 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/login_register # PostgreSQL connection URL
-    username: postgres # Database username
-    password: Rayana2024 # Database password
-    driver-class-name: org.postgresql.Driver # PostgreSQL driver class
+    url: jdbc:postgresql://localhost:5432/login_register
+    username: postgres
+    password: Rayana2024
+    driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
-      ddl-auto: update # Automatically update the database schema
-    show-sql: true # Show SQL queries in the logs
+      ddl-auto: update
+    show-sql: true
     properties:
       hibernate:
-        format_sql: true # Format SQL queries for better readability
-    database: postgresql # Specify the database type
-    database-platform: org.hibernate.dialect.PostgreSQLDialect # Hibernate dialect for PostgreSQL
+        format_sql: true
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
 
   mail:
-    host: localhost # Mail server host
-    port: 1025 # Mail server port
-    username: admin # Mail server username
-    password: admin # Mail server password
+    host: localhost
+    port: 1025
+    username: admin
+    password: admin
     properties:
       mail:
         smtp:
-          trust: "*" # Trust all hosts for SMTP
-        auth: true # Enable SMTP authentication
+          trust: "*"
+        auth: true
         starttls:
-          enable: true # Enable STARTTLS encryption
-        connectiontimeout: 5000 # Connection timeout in milliseconds
-        timeout: 3000 # Read timeout in milliseconds
-        writetimeout: 5000 # Write timeout in milliseconds
+          enable: true
+        connectiontimeout: 5000
+        timeout: 3000
+        writetimeout: 5000
 
   application:
     security:
       jwt:
-        secretKey: 0mn0usPNCj5ZTGVvzLceBNxIizxa1OhiRuuUZFBbjOMk # JWT secret key
-        expirationInMs: 86400000 # JWT expiration time in milliseconds (24 hours)
+        secretKey: 0mn0usPNCj5ZTGVvzLceBNxIizxa1OhiRuuUZFBbjOMk
+        expirationInMs: 86400000
+      oauth2:
+        successUrl: http://localhost:4200/oauth2/callback
     mailing:
       frontend:
-        activationUrl: http://localhost:4200/activate-account # Frontend activation URL
+        activationUrl: http://localhost:4200/activate-account
+        resetPasswordUrl: http://localhost:4200/reset-password
 
-  server:
-    port: 8080 # Server port
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: your-google-client-id
+            client-secret: your-google-client-secret
+            scope: openid, profile, email
+          github:
+            client-id: your-github-client-id
+            client-secret: your-github-client-secret
+            scope: read:user, user:email
+        provider:
+          github:
+            user-name-attribute: login
+
+server:
+  port: 8080

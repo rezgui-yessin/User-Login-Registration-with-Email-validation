@@ -1,23 +1,64 @@
 spring:
-  profiles:
-    active: dev # Activate the 'dev' profile by default
+  datasource:
+    url: jdbc:postgresql://localhost:5432/login_register
+    username: postgres
+    password: Rayana2024
+    driver-class-name: org.postgresql.Driver
 
-  servlet:
-    multipart:
-      max-file-size: 50MB # Set maximum file upload size to 50MB
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
 
-  # SpringDoc (OpenAPI) configuration
-springdoc:
-  swagger-ui:
-    path: /swagger-ui.html
-    operationsSorter: alpha
-    tagsSorter: alpha
-    doc-expansion: none
-  api-docs:
-    path: /v3/api-docs
-  default-consumes-media-type: application/json
-  default-produces-media-type: application/json
+  mail:
+    host: localhost
+    port: 1025
+    username: admin
+    password: admin
+    properties:
+      mail:
+        smtp:
+          trust: "*"
+        auth: true
+        starttls:
+          enable: true
+        connectiontimeout: 5000
+        timeout: 3000
+        writetimeout: 5000
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID:your-google-client-id}
+            client-secret: ${GOOGLE_CLIENT_SECRET:your-google-client-secret}
+            scope: openid, profile, email
+          github:
+            client-id: ${GITHUB_CLIENT_ID:your-github-client-id}
+            client-secret: ${GITHUB_CLIENT_SECRET:your-github-client-secret}
+            scope: read:user,user:email
+        provider:
+          github:
+            user-name-attribute: login
+
+  application:
+    security:
+      jwt:
+        secretKey: ${JWT_SECRET_KEY:0mn0usPNCj5ZTGVvzLceBNxIizxa1OhiRuuUZFBbjOMk}
+        expirationInMs: ${JWT_ACCESS_TOKEN_EXPIRATION_MS:900000}
+        refreshExpirationInMs: ${JWT_REFRESH_TOKEN_EXPIRATION_MS:604800000}
+      oauth2:
+        successUrl: ${OAUTH2_SUCCESS_URL:http://localhost:4200/oauth2/callback}
+    mailing:
+      frontend:
+        activationUrl: http://localhost:4200/activate-account
+        resetPasswordUrl: http://localhost:4200/reset-password
 
 server:
-  servlet:
-    context-path: /api/v1/ # Set the base context path for the application
+  port: 8080

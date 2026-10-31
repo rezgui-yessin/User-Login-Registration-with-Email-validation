@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 public class AuthenticationController {
     private final AuthenticationService service;
 
-    // Add this constructor manually to test if Lombok is the issue
     public AuthenticationController(AuthenticationService service) {
         this.service = service;
     }
@@ -29,22 +28,39 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login")
+    public ResponseEntity<AuthenticationResponse> login(
+            @RequestBody @Valid LoginRequest request
+    ) {
+        return ResponseEntity.ok(service.login(request));
+    }
 
-public ResponseEntity<AuthenticationResponse> login(
-        @RequestBody  LoginRequest request
-    )
-    {
-        return  ResponseEntity.ok(service
-                .login(request));
+    @PostMapping("/refresh")
+    public ResponseEntity<AuthenticationResponse> refresh(
+            @RequestBody @Valid RefreshTokenRequest request
+    ) {
+        return ResponseEntity.ok(service.refreshToken(request.getRefreshToken()));
+    }
 
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@RequestBody @Valid RefreshTokenRequest request) {
+        service.logout(request.getRefreshToken());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Void> forgotPassword(@RequestBody @Valid ForgotPasswordRequest request) throws MessagingException {
+        service.forgotPassword(request.getEmail());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Void> resetPassword(@RequestBody @Valid PasswordResetRequest request) {
+        service.resetPassword(request.getToken(), request.getNewPassword());
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/activate-account")
-    public void confirm(
-            @RequestParam String token
-    ) throws MessagingException {
+    public void confirm(@RequestParam String token) throws MessagingException {
         service.activateAccount(token);
     }
-
-
 }

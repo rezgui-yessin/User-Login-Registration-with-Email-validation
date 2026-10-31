@@ -1,5 +1,7 @@
 package com.yessinCoding.security;
 
+import com.yessinCoding.entity.User;
+import com.yessinCoding.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -16,17 +18,22 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-// this JwtService use to extract the username from the jwt token
 @Service
 public class JwtService {
     @Value("${spring.application.security.jwt.expirationInMs}")
-    private Long jwtExpirationInMs  ;
+    private Long jwtExpirationInMs;
+
     @Value("${spring.application.security.jwt.secretKey}")
-    private   String secretKey;
+    private String secretKey;
+
+    public Long getJwtExpirationInMs() {
+        return jwtExpirationInMs;
+    }
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
+
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
@@ -40,7 +47,6 @@ public class JwtService {
                 .parseClaimsJws(token)
                 .getBody();
     }
-
 
     public String generateToken(UserDetails userDetails) {
         return generateToken(new HashMap<>(), userDetails);
@@ -57,16 +63,16 @@ public class JwtService {
                 .stream()
                 .map(GrantedAuthority::getAuthority)
                 .toList();
+
+        Date now = new Date();
         return Jwts.builder()
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
-                .setIssuedAt(new Date(System.currentTimeMillis()+jwtExpirationInMs))
+                .setIssuedAt(now)
+                .setExpiration(new Date(now.getTime() + jwtExpirationInMs))
                 .claim("authorities", authorities)
                 .signWith(getSigninKey())
                 .compact();
-
-
-
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
@@ -76,21 +82,17 @@ public class JwtService {
 
     private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
-
     }
 
     private Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
 
-
     private Key getSigninKey() {
-
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         if (keyBytes.length < 32) {
             throw new WeakKeyException("The secret key must be at least 256 bits (32 bytes) long.");
         }
-
-            return Keys.hmacShaKeyFor(keyBytes);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 }
